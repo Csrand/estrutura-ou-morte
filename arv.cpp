@@ -1,6 +1,7 @@
+
 #include <iostream>
 
-// Este ? um exemplo de programa em C++
+//João Victor Magno
 
 using namespace std;
 
@@ -11,7 +12,7 @@ struct No{
 	No* Dir;
 };
 
-//header ou cabe?alho ou cabe?a
+//header ou cabeçalho ou cabeça
 struct Arvore{
 	No* Raiz;		
 	int TotalElem;
@@ -32,6 +33,35 @@ No* CriaNo(float ValorNum, string ValorTexto){
 	Ret->Dir = NULL;	
 
 	return Ret;
+}
+
+No* InsereNoArv(Arvore* Arv, float ValorNum, string ValorTexto, No* NoPai, string TipoLig){
+	No *Item;
+
+	//Aloca espa?o, grava os dados e retorna o ponteiro pro elemento	
+	Item = CriaNo(ValorNum, ValorTexto);
+	if (NoPai != NULL){// Se passou o pai, insere diretamente
+		if (TipoLig == "E"){
+			NoPai->Esq = Item;	
+		}
+		else{
+			NoPai->Dir = Item;
+		}				
+	}
+	else{	
+		if (Arv->Raiz == NULL){//?rvore Vazia
+			Arv->Raiz = Item;			
+		}	
+		else{
+			Item = NULL; //Erro!!
+		}			
+	}
+
+	if (Item != NULL){
+		Arv->TotalElem++;
+	}
+	
+	return Item;
 }
 
 void ImprimeArvore(No* NoArv, string Tipo, char TipoValor) {
@@ -70,6 +100,29 @@ void ImprimeArvore(No* NoArv, string Tipo, char TipoValor) {
 
 	}
 }
+
+int Altura(No* NoArv){
+	int Ret, AltDir, AltEsq;
+	
+	if (NoArv != NULL){
+		AltEsq = Altura(NoArv->Esq);
+		AltDir = Altura(NoArv->Dir);
+		
+		if (AltEsq > AltDir){
+			Ret = AltEsq + 1;
+		}
+		else{
+			Ret = AltDir + 1;
+		}
+	}
+	else{
+		Ret = -1;
+	}
+	
+	 
+	return Ret;
+}
+
 No* BuscaPai(No* NoArv, int ValorNum){
 	No* Ret;
 	
@@ -81,7 +134,7 @@ No* BuscaPai(No* NoArv, int ValorNum){
 			//cout << endl << "J? existe: " << NoArv->ValorNum;
 			Ret = NULL; //Encontrou
 		}
-		else{		
+		else{
 			if (ValorNum > NoArv->ValorNum&&NoArv->Dir == NULL ||
 				ValorNum < NoArv->ValorNum&&NoArv->Esq == NULL){
 					//cout << endl << "Achei o pai: " << NoArv->ValorNum;
@@ -98,12 +151,12 @@ No* BuscaPai(No* NoArv, int ValorNum){
 				}
 			}
 		}
-	}
-	
+	}	
 	return Ret;
 }
+
 No* InsereNoArvOrd(Arvore* Arv, int ValorNum, string ValorTexto){
-	No *Item, *NoPai, *Aux;
+	No *Item, *NoPai;
 
 	//Aloca espa?o, grava os dados e retorna o ponteiro pro elemento	
 	if (Arv->Raiz == NULL){//?rvore Vazia
@@ -122,42 +175,112 @@ No* InsereNoArvOrd(Arvore* Arv, int ValorNum, string ValorTexto){
 			}							
 		}
 	}
-
 	if (Item != NULL){
 		Arv->TotalElem++;
 	}
-	
 	return Item;
 }
 
+No* InsereNoArvOrdRec(Arvore* Arv, No* NoArv, int ValorNum, string ValorTexto){
+	No *Ret, *Item;
+	
+	if (Arv->Raiz == NULL){//?rvore Vazia
+		Item = CriaNo(ValorNum, ValorTexto);
+		Arv->Raiz = Item;
+		Arv->TotalElem++;
+		Ret = Item;
+	}
+	else{
+		if (NoArv == NULL){
+			NoArv = Arv->Raiz; 
+		}
+
+		if (ValorNum == NoArv->ValorNum){
+			cout << endl << "ERRO: j? existe o valor " << NoArv->ValorNum << endl;
+			Ret = NULL; //Encontrou
+		}
+		else{		
+			if (ValorNum > NoArv->ValorNum&&NoArv->Dir == NULL){
+				Item = CriaNo(ValorNum, ValorTexto);
+				NoArv->Dir = Item;
+				Arv->TotalElem++;
+				
+				Ret = Item;
+			}
+			else{
+				if (ValorNum < NoArv->ValorNum&&NoArv->Esq == NULL){
+					Item = CriaNo(ValorNum, ValorTexto);
+					NoArv->Esq = Item;
+					Arv->TotalElem++;
+				
+					Ret = Item;
+				}
+			
+				else{
+					if(ValorNum > NoArv->ValorNum){
+						Ret = InsereNoArvOrdRec(Arv, NoArv->Dir, ValorNum, ValorTexto);			
+					}
+					else{
+						Ret = InsereNoArvOrdRec(Arv, NoArv->Esq, ValorNum, ValorTexto);			
+					}
+				}
+			}
+		}
+	}
+			
+	return Ret;
+}
 
 Arvore Arv;
 int main () {
 	setlocale (LC_ALL,"Portuguese");
 	
 	Ini_Arvore(&Arv);
+	
+	/*
 	InsereNoArvOrd(&Arv, 6, "6");
 	InsereNoArvOrd(&Arv, 5, "5");
-	InsereNoArvOrd(&Arv, 8, "8");
+	InsereNoArvOrd(&Arv, 1, "1");
 	InsereNoArvOrd(&Arv, 4, "4");
-	InsereNoArvOrd(&Arv, 7, "7");	
-	InsereNoArvOrd(&Arv, 11, "B");
+	InsereNoArvOrd(&Arv, 3, "3");
+	InsereNoArvOrd(&Arv, 8, "8");
 	InsereNoArvOrd(&Arv, 2, "2");
+	InsereNoArvOrd(&Arv, 9, "1");
 	InsereNoArvOrd(&Arv, 10, "A");
 	InsereNoArvOrd(&Arv, 9, "9");
-	InsereNoArvOrd(&Arv, 12, "C");		
+	InsereNoArvOrd(&Arv, 10, "B");
+	InsereNoArvOrd(&Arv, 12, "C");
+	*/
+	
+	InsereNoArvOrdRec(&Arv, NULL, 6, "6");
+	InsereNoArvOrdRec(&Arv, NULL, 5, "5");
+	InsereNoArvOrdRec(&Arv, NULL, 8, "8");
+	InsereNoArvOrdRec(&Arv, NULL, 4, "4");
+	InsereNoArvOrdRec(&Arv, NULL, 7, "7");
+	InsereNoArvOrdRec(&Arv, NULL, 11, "B");
+	InsereNoArvOrdRec(&Arv, NULL, 2, "2");
+	InsereNoArvOrdRec(&Arv, NULL, 1, "1");
+	InsereNoArvOrdRec(&Arv, NULL, 3, "3");
+	InsereNoArvOrdRec(&Arv, NULL, 10, "A");
+	InsereNoArvOrdRec(&Arv, NULL, 12, "C");
+	InsereNoArvOrdRec(&Arv, NULL, 9, "9");
+	
+	if(Arv.Raiz != NULL){
+		cout << "Pré-Ordem:" << "\n";
 
-	if (Arv.Raiz != NULL){
-		//6,5,4,2,1,3,8,7,9,C
 		ImprimeArvore(Arv.Raiz, "PRE", 'T');
-		cout<< endl;
-		//2, 4, 5, 6, 7, 8, 9, A, B, C,
+		cout << "\n";
+		
+		cout << "\n" << "Ordem-Central:" << "\n";	
 		ImprimeArvore(Arv.Raiz, "CEN", 'T');
-		cout<< endl;
-		//2, 4, 5, 7, 9, A, C, B, 8, 6,
+		cout << "\n";
+		
+		cout << "\n" << "Pos-Ordem:" << "\n";
 		ImprimeArvore(Arv.Raiz, "POS", 'T');
-		cout<< endl;
+		cout << "\n";
+		
 	}
+	
 	
 	return 0;
 }
