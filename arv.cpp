@@ -1,7 +1,7 @@
 
 #include <iostream>
 
-//João Victor Magno
+
 
 using namespace std;
 
