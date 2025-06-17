@@ -230,7 +230,72 @@ No* InsereNoArvOrdRec(Arvore* Arv, No* NoArv, int ValorNum, string ValorTexto){
 			
 	return Ret;
 }
-
+No* Acha_Menor(No* NoArv){
+	No *Item;
+	
+	if (NoArv->Esq == NULL){
+		Item = NoArv;
+	}
+	else{
+		Item = Acha_Menor(NoArv->Esq);
+	}
+	
+	return Item;
+}
+No* RemoveNoArvOrd(Arvore* Arv, No* NoArv, int ValorNum){
+	No *Item, *Aux;
+	
+	if (NoArv != NULL){
+		Item = NoArv;
+		if (ValorNum > NoArv->ValorNum){ //Maior - Lado direito
+			NoArv->Dir = RemoveNoArvOrd(Arv, NoArv->Dir, ValorNum);			
+		}
+		else{ //Menor - Lado esquerdo
+			if (ValorNum < NoArv->ValorNum){
+				NoArv->Esq = RemoveNoArvOrd(Arv, NoArv->Esq, ValorNum);
+			}
+			else{
+				if (NoArv->Esq == NULL && NoArv->Dir == NULL){
+					free(NoArv);
+					Item = NULL;
+					Arv->TotalElem--;
+					if(Arv->TotalElem == 0){
+						Arv->Raiz = NULL;
+					}
+				}
+				else{ //1 filho
+					if (NoArv->Esq == NULL){ //1 filho: Filho est? no n? direito						
+						Item = NoArv->Dir;
+						free(NoArv);
+						Arv->TotalElem--;
+					}
+					else{
+						if (NoArv->Dir == NULL){ //1 filho: Filho est? no n? esquerdo
+							Item = NoArv->Esq;	
+							free(NoArv);
+							Arv->TotalElem--;
+						}
+						else{ //2 filhos
+							Item = NoArv;
+							Aux = Acha_Menor(NoArv->Dir);	
+							//Copia	os dados do menor sucessor na sub-?rvore direita para o n? atual
+							NoArv->ValorNum = Aux->ValorNum;
+							NoArv->ValorTexto = Aux->ValorTexto;
+							//Remove n? successor atualizando a sub-?rvore direita
+							NoArv->Dir = RemoveNoArvOrd(Arv, NoArv->Dir, Aux->ValorNum);
+							
+						}
+					}
+				}
+				
+			}
+		}
+	}
+	else{
+		Item = NULL;
+	}
+	return Item;
+}
 Arvore Arv;
 int main () {
 	setlocale (LC_ALL,"Portuguese");
@@ -268,17 +333,23 @@ int main () {
 	if(Arv.Raiz != NULL){
 		cout << "Pré-Ordem:" << "\n";
 
-		ImprimeArvore(Arv.Raiz, "PRE", 'T');
-		cout << "\n";
+	//	ImprimeArvore(Arv.Raiz, "PRE", 'T');
+	//	cout << "\n";
 		
 		cout << "\n" << "Ordem-Central:" << "\n";	
 		ImprimeArvore(Arv.Raiz, "CEN", 'T');
 		cout << "\n";
 		
-		cout << "\n" << "Pos-Ordem:" << "\n";
-		ImprimeArvore(Arv.Raiz, "POS", 'T');
+	//	cout << "\n" << "Pos-Ordem:" << "\n";
+	//	ImprimeArvore(Arv.Raiz, "POS", 'T');
+	//	cout << "\n";
+		RemoveNoArvOrd(&Arv, Arv.Raiz, 2);
+		RemoveNoArvOrd(&Arv, Arv.Raiz, 11);
+		RemoveNoArvOrd(&Arv, Arv.Raiz, 8);
+		RemoveNoArvOrd(&Arv, Arv.Raiz, 11);
+		cout << "\n" << "Ordem-Central pos remocao:" << "\n";	
+		ImprimeArvore(Arv.Raiz, "CEN", 'T');
 		cout << "\n";
-		
 	}
 	
 	
